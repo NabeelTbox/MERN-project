@@ -9,16 +9,21 @@ const Ticket = require("../models/ticketModel");
 
 const getTickets = asyncHandler(async (req, res) => {
   // Get user using the id and JWT
-  const user = await User.findById(req.user.id);
 
-  if (!user) {
-    res.status(401);
-    throw new Error("User not found");
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      res.status(401);
+      throw new Error("User not found");
+    }
+
+    const tickets = await Ticket.find({ user: req.user.id });
+
+    res.status(200).json(tickets);
+  } catch (error) {
+    console.log("ERRROR : ", error);
   }
-
-  const tickets = await Ticket.find({ user: req.user.id });
-
-  res.status(200).json(tickets);
 });
 
 // @desc Get user ticket
@@ -103,8 +108,8 @@ const deleteTicket = asyncHandler(async (req, res) => {
     throw new Error("Not Authorized");
   }
 
-//   await ticket.remove();
-await Ticket.deleteOne({ _id: req.params.id });
+  //   await ticket.remove();
+  await Ticket.deleteOne({ _id: req.params.id });
 
   res.status(200).json({ success: true });
 });
